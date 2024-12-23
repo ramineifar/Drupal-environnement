@@ -1,0 +1,12 @@
+.idea
+.env
+docker/mariadb/datas/*
+project/vendor
+project/web/core
+project/web/libraries/contrib
+project/web/modules/contrib
+project/web/profiles/contrib
+project/web/themes/contrib
+project/web/Commands/contrib
+project/web/sites/*/files/
+logs/*

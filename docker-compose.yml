@@ -1,0 +1,55 @@
+version: "3.9"
+services:
+  nginx:
+    container_name: nginx_php
+    build:
+      context: .
+      dockerfile: ./docker/nginx/Dockerfile
+    ports:
+      - "${EXPOSED_PORT}:80"
+    networks:
+      - internal
+    volumes:
+      - ./project:/var/www/html
+      - ./logs/nginx:/var/log/nginx
+      - ./docker/nginx/config/:/etc/nginx/conf.d/
+    links:
+      - php
+
+  php:
+    container_name: project_php
+    build:
+      context: .
+      dockerfile: ./docker/php/Dockerfile
+      args:
+        USER_ID: ${USER_ID:-0}
+        GROUP_ID: ${GROUP_ID:-0}
+    env_file:
+      - .env
+    networks:
+      - internal
+    volumes:
+      - ./project/:/var/www/html/:rw
+      - ./logs/php:/var/log:rw
+      - ~/.ssh:/root/.ssh
+
+  mariadb:
+    container_name: mariadb_php
+    build:
+      context: .
+      dockerfile: ./docker/mariadb/Dockerfile
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    volumes:
+      - ./docker/mariadb/datas:/var/lib/mysql:rw
+    networks:
+      - internal
+    ports:
+      - ${MYSQL_EXPOSED_PORT}:3306
+
+networks:
+  internal:
+    driver: bridge
